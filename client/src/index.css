@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #ffdfef;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+/* iOS-specific body class */
+body.ios-device {
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+}
+
+.global-container {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+/* iOS-specific header fixes */
+.ios-fixed-header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Force fixed position for floating elements on iOS */
+.ios-fixed-element {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+/* Override React-Floating-WhatsApp styles for iOS */
+.floating-whatsapp-container {
+  position: fixed !important;
+  bottom: 0px !important;
+  right: -10px !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+  z-index: 9999 !important;
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .whatsapp-container,
+  .scroll-top-btn,
+  .ios-fixed-element {
+    position: fixed !important;
+  }
+
+  .floating-whatsapp-container {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* Fix for iOS Safari viewport height issues */
+:root {
+  --vh: 1vh;
+}
+
+/* Adaptive height for iOS */
+@supports (-webkit-touch-callout: none) {
+  .vh-ios-fix {
+    height: calc(var(--vh, 1vh) * 100);
+  }
+}
+
+/* iOS safe area insets */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .ios-device {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .scroll-top-btn {
+    bottom: calc(112px + env(safe-area-inset-bottom)) !important;
+  }
+}
