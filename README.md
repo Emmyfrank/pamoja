@@ -3,7 +3,7 @@
 **Pamoja** (Swahili for "together") is a comprehensive digital health platform that provides safe, confidential, and accessible sexual and reproductive health information and services. Founded in 2025, Pamoja Health addresses the critical need for accessible SRH information, especially in underserved communities, by combining AI technology with expert-reviewed content.
 
 ##  What Pamoja Does
-- - **Dashboard demo Video**: [dashboard-demo-video](https://youtu.be/aeT2vx-tgOc?si=aSDMw8lxZ8FCF0RC)
+- - **Dashboard demo Video OPEN THE LINK 👉🏾**: [dashboard-demo-video](https://youtu.be/aeT2vx-tgOc?si=aSDMw8lxZ8FCF0RC)
 
 ### **Core Mission**
 
@@ -137,7 +137,7 @@ Pamoja Health creates a safe, judgment-free environment where people can access 
 ### **For Users**
 
 1. Visit the platform at [pamoja.health](https://pamoja.health)
-2. - - **Dashboard demo Video**: [dashboard-demo-video](https://youtu.be/aeT2vx-tgOc?si=aSDMw8lxZ8FCF0RC)
+2. - - **Dashboard demo Video OPEN THE LINK 👉🏾**: [dashboard-demo-video](https://youtu.be/aeT2vx-tgOc?si=aSDMw8lxZ8FCF0RC)
 3. Start chatting immediately (no registration required)
 4. Explore the learning library for health information
 5. Join community discussions for peer support
@@ -200,7 +200,7 @@ Pamoja Health is continuously evolving to better serve communities worldwide:
 
 - **WhatsApp**: +250788240148 (Pamoja AI Assistant - 24/7 support)
 - **Website**: [pamoja.health](https://pamoja.health)
-- - **Dashboard demo Video**: [dashboard-demo-video](https://youtu.be/aeT2vx-tgOc?si=aSDMw8lxZ8FCF0RC)
+- - **Dashboard demo Video OPEN THE LINK 👉🏾**: [dashboard-demo-video](https://youtu.be/aeT2vx-tgOc?si=aSDMw8lxZ8FCF0RC)
 - **Community**: Join discussions on the platform for peer support
 - **Partnerships**: Contact us for collaboration opportunities with healthcare organizations
 - **Technical Support**: For developers and technical inquiries
