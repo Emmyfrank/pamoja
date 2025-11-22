@@ -91,7 +91,8 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-neutral-100">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-neutral-600 text-sm">
-              © {new Date().getFullYear()} Pamoja. All rights reserved. Built by{" "}
+              © {new Date().getFullYear()} Pamoja. All rights reserved.
+              {/* Built by{" "}
               <a
                 className="underline font-bold"
                 href="https://keyypress.com"
@@ -99,7 +100,7 @@ const Footer = () => {
               >
                 {" "}
                 Keyy<span className="font-bold text-orange-500">Press</span>
-              </a>
+              </a> */}
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link

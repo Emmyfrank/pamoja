@@ -11,7 +11,7 @@ const router = express.Router();
 router
   .route("/")
   .post(optionalAuth, askChatGpt)
-  .get(protect, getChatHistory)
+  .get(optionalAuth, getChatHistory)
   .delete(protect, clearHistory);
 
 export default router;

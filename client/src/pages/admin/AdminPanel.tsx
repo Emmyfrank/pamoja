@@ -11,6 +11,8 @@ import {
   Loader2,
   X,
   BarChart3,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useAuthStore } from "../../store/auth.store";
 import { useAdminStore } from "../../store/admin.store";
@@ -27,14 +29,19 @@ const AdminPanel = () => {
   const [showMaterialForm, setShowMaterialForm] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersLimit] = useState(10);
 
   const {
     users,
+    usersPagination,
     stats,
+    suggestions,
     loading: adminLoading,
     error: adminError,
     fetchStats,
     fetchUsers,
+    fetchSuggestions,
     updateUserRole,
   } = useAdminStore();
 
@@ -54,9 +61,16 @@ const AdminPanel = () => {
 
   useEffect(() => {
     fetchStats();
-    fetchUsers();
+    fetchUsers(1, usersLimit);
     fetchMaterials();
+    fetchSuggestions();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "users") {
+      fetchUsers(usersPage, usersLimit);
+    }
+  }, [usersPage, activeTab]);
 
   const handleCreateMaterial = async (data: any) => {
     try {
@@ -186,26 +200,26 @@ const AdminPanel = () => {
             {/* Quick Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-semibold mb-4">Quick Stats</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total Users</span>
-                  <span className="font-semibold">
-                    {stats?.totalUsers || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold mb-4">Quick Stats</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Users</span>
+                    <span className="font-semibold">
+                      {stats?.totalUsers || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-600">Community Messages</span>
-                  <span className="font-semibold">
-                    {stats?.totalMessages || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Learning Materials</span>
-                  <span className="font-semibold">
-                    {stats?.totalMaterials || 0}
-                  </span>
-                </div>
+                    <span className="font-semibold">
+                      {stats?.totalMessages || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Learning Materials</span>
+                    <span className="font-semibold">
+                      {stats?.totalMaterials || 0}
+                    </span>
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Community Questions</span>
                     <span className="font-semibold">
@@ -290,8 +304,8 @@ const AdminPanel = () => {
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Reports
                   </Button>
+                </div>
               </div>
-            </div>
             </div>
 
             {/* Analytics Dashboard - Embedded directly in Overview */}
@@ -304,18 +318,25 @@ const AdminPanel = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">User Management</h3>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-200  focus:outline-none focus:ring-2 focus:ring-pamoja-purple focus:border-transparent"
-                  />
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={18}
-                  />
+                <div className="flex items-center gap-4">
+                  {usersPagination && (
+                    <div className="text-sm text-gray-600">
+                      Total: {usersPagination.total} users
+                    </div>
+                  )}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4 py-2 border border-gray-200  focus:outline-none focus:ring-2 focus:ring-pamoja-purple focus:border-transparent"
+                    />
+                    <Search
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -363,12 +384,14 @@ const AdminPanel = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() =>
-                                updateUserRole(
+                              onClick={async () => {
+                                await updateUserRole(
                                   user._id,
                                   user.role === "ADMIN" ? "USER" : "ADMIN"
-                                )
-                              }
+                                );
+                                // Refresh users after role update
+                                fetchUsers(usersPage, usersLimit);
+                              }}
                             >
                               Make {user.role === "ADMIN" ? "User" : "Admin"}
                             </Button>
@@ -378,6 +401,79 @@ const AdminPanel = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination Controls */}
+              {usersPagination && usersPagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    Showing{" "}
+                    {(usersPagination.page - 1) * usersPagination.limit + 1} to{" "}
+                    {Math.min(
+                      usersPagination.page * usersPagination.limit,
+                      usersPagination.total
+                    )}{" "}
+                    of {usersPagination.total} users
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setUsersPage((prev) => Math.max(1, prev - 1))
+                      }
+                      disabled={!usersPagination.hasPrevPage || adminLoading}
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Previous
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from(
+                        { length: Math.min(5, usersPagination.totalPages) },
+                        (_, i) => {
+                          let pageNum;
+                          if (usersPagination.totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (usersPagination.page <= 3) {
+                            pageNum = i + 1;
+                          } else if (
+                            usersPagination.page >=
+                            usersPagination.totalPages - 2
+                          ) {
+                            pageNum = usersPagination.totalPages - 4 + i;
+                          } else {
+                            pageNum = usersPagination.page - 2 + i;
+                          }
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={
+                                usersPagination.page === pageNum
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setUsersPage(pageNum)}
+                              disabled={adminLoading}
+                              className="min-w-[40px]"
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUsersPage((prev) => prev + 1)}
+                      disabled={!usersPagination.hasNextPage || adminLoading}
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -558,15 +654,46 @@ const AdminPanel = () => {
           <div className="bg-white shadow-sm">
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-6">User Suggestions</h3>
-              <div className="text-center py-12">
-                <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">
-                  No suggestions available at the moment.
-                </p>
-                <p className="text-gray-500 text-sm mt-2">
-                  User suggestions will appear here when submitted.
-                </p>
-              </div>
+              {suggestions.length === 0 ? (
+                <div className="text-center py-12">
+                  <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">
+                    No suggestions available at the moment.
+                  </p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    User suggestions will appear here when submitted.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {suggestions.map((suggestion) => (
+                    <div
+                      key={suggestion._id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <span
+                          className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                            suggestion.type === "FEATURE REQUEST"
+                              ? "bg-blue-100 text-blue-800"
+                              : suggestion.type === "IMPROVEMENT"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {suggestion.type}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(suggestion.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-gray-700 mt-2">
+                        {suggestion.suggestion}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

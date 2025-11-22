@@ -14,6 +14,9 @@ import {
   getConversationAnalytics,
   getLearningMaterialsAnalytics,
   getDashboardAnalytics,
+  getAdvancedStatistics,
+  getPredictiveAnalytics,
+  getAllSuggestions,
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -31,10 +34,14 @@ router.get("/analytics/user-growth", getUserGrowthAnalytics);
 router.get("/analytics/community-engagement", getCommunityEngagementAnalytics);
 router.get("/analytics/conversations", getConversationAnalytics);
 router.get("/analytics/learning-materials", getLearningMaterialsAnalytics);
+router.get("/analytics/advanced-statistics", getAdvancedStatistics);
+router.get("/analytics/predictive", getPredictiveAnalytics);
 
 router.get("/materials", getLearningMaterials);
 router.post("/materials", createLearningMaterial);
 router.patch("/materials/:materialId", updateLearningMaterial);
 router.delete("/materials/:materialId", deleteLearningMaterial);
+
+router.get("/suggestions", getAllSuggestions);
 
 export default router;

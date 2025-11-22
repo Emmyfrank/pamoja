@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth.store";
-import { Shield, Lock, User, AlertTriangle } from "lucide-react";
+import { Lock, User, AlertTriangle } from "lucide-react";
 
 interface FormData {
   username: string;
@@ -11,7 +11,7 @@ interface FormData {
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, register, error, loading, isAuthenticated, clearError } =
+  const { login, register, error, loading, isAuthenticated, user, clearError } =
     useAuthStore();
 
   const [isLogin, setIsLogin] = useState(true);
@@ -23,12 +23,17 @@ const Login = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [showPrivacyTip, setShowPrivacyTip] = useState(false);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated or after successful login
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
+    if (isAuthenticated && user) {
+      // Check if user is admin and redirect accordingly
+      if (user.role === "ADMIN") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   // Clear errors when toggling between login and register
   useEffect(() => {
@@ -56,17 +61,18 @@ const Login = () => {
       return;
     }
 
-    if (isLogin)
+    if (isLogin) {
       await login({
         username: formData.username,
         password: formData.password,
       });
-    else
+    } else {
       await register({
         username: formData.username,
         password: formData.password,
         isAnonymous: true,
       });
+    }
   };
 
   const toggleAuthMode = () => {

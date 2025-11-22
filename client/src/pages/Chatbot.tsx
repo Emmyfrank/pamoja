@@ -30,9 +30,10 @@ const Chatbot = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadPreviousMessages();
-    } else {
+    // Load previous messages for both authenticated and anonymous users
+    loadPreviousMessages();
+    
+    if (!isAuthenticated) {
       const hasSeenWarning = sessionStorage.getItem("hasSeenChatWarning");
       if (!hasSeenWarning) {
         setShowAnonymousWarning(true);

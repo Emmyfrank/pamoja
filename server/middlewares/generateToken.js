@@ -22,6 +22,7 @@ export const generateToken = (req, res, next) => {
             username: req.user.username,
             _id: req.user._id,
             isAnonymous: req.user.isAnonymous,
+            role: req.user.role || "USER",
           },
         },
       });

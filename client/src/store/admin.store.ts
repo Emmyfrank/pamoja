@@ -126,9 +126,27 @@ interface DashboardAnalytics {
   };
 }
 
+interface Suggestion {
+  _id: string;
+  type: string;
+  suggestion: string;
+  createdAt: string;
+}
+
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface AdminState {
   users: User[];
+  usersPagination: PaginationInfo | null;
   stats: Stats | null;
+  suggestions: Suggestion[];
   dashboardAnalytics: DashboardAnalytics | null;
   userGrowthData: UserGrowthData | null;
   communityEngagementData: CommunityEngagementData | null;
@@ -138,7 +156,8 @@ interface AdminState {
   error: string | null;
 
   fetchStats: () => Promise<void>;
-  fetchUsers: () => Promise<void>;
+  fetchUsers: (page?: number, limit?: number) => Promise<void>;
+  fetchSuggestions: () => Promise<void>;
   updateUserRole: (userId: string, role: "USER" | "ADMIN") => Promise<void>;
   fetchDashboardAnalytics: () => Promise<void>;
   fetchUserGrowthAnalytics: (period?: string) => Promise<void>;
@@ -150,7 +169,9 @@ interface AdminState {
 
 export const useAdminStore = create<AdminState>((set) => ({
   users: [],
+  usersPagination: null,
   stats: null,
+  suggestions: [],
   dashboardAnalytics: null,
   userGrowthData: null,
   communityEngagementData: null,
@@ -172,14 +193,31 @@ export const useAdminStore = create<AdminState>((set) => ({
     }
   },
 
-  fetchUsers: async () => {
+  fetchUsers: async (page = 1, limit = 10) => {
     try {
       set({ loading: true, error: null });
-      const response = await api.get("/api/v1/admin/users");
-      set({ users: response.data.data.users, loading: false });
+      const response = await api.get(`/api/v1/admin/users?page=${page}&limit=${limit}`);
+      set({ 
+        users: response.data.data.users,
+        usersPagination: response.data.data.pagination,
+        loading: false 
+      });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || "Failed to fetch users",
+        loading: false,
+      });
+    }
+  },
+
+  fetchSuggestions: async () => {
+    try {
+      set({ loading: true, error: null });
+      const response = await api.get("/api/v1/admin/suggestions");
+      set({ suggestions: response.data.data.suggestions, loading: false });
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || "Failed to fetch suggestions",
         loading: false,
       });
     }
