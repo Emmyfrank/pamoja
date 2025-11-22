@@ -1,0 +1,54 @@
+INFO::Nov-22-25 10:31:51: Server running on PORT undefined
+INFO::Nov-22-25 10:31:51: API Documentation available at http://localhost:undefined/api-docs
+ERROR::Nov-22-25 10:31:51: Failed to connect to database, MongooseError: The `uri` parameter to `openUri()` must be a string, got "undefined". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.
+INFO::Nov-22-25 10:35:00: Server running on PORT 4000
+INFO::Nov-22-25 10:35:00: API Documentation available at http://localhost:4000/api-docs
+INFO::Nov-22-25 10:35:01: Connected to database ac-7jnoi5r-shard-00-00.dljc90v.mongodb.net
+INFO::Nov-22-25 10:35:22: POST request incoming to endpoint /api/v1/chat
+INFO::Nov-22-25 10:36:01: GET request incoming to endpoint /api/v1/testimonials
+INFO::Nov-22-25 10:36:01: GET request incoming to endpoint /api/v1/testimonials
+INFO::Nov-22-25 10:47:30: GET request incoming to endpoint /api/v1/testimonials
+INFO::Nov-22-25 10:47:30: GET request incoming to endpoint /api/v1/testimonials
+INFO::Nov-22-25 10:47:46: POST request incoming to endpoint /api/v1/auth/login
+INFO::Nov-22-25 10:47:46: GET request incoming to endpoint /api/v1/admin/dashboard
+INFO::Nov-22-25 10:47:46: GET request incoming to endpoint /api/v1/admin/analytics/conversations?period=1y
+INFO::Nov-22-25 10:47:46: GET request incoming to endpoint /api/v1/admin/analytics/community-engagement?period=1y
+INFO::Nov-22-25 10:47:46: GET request incoming to endpoint /api/v1/admin/analytics/user-growth?period=1y
+INFO::Nov-22-25 10:47:46: GET request incoming to endpoint /api/v1/admin/analytics/learning-materials?period=1y
+INFO::Nov-22-25 10:47:46: GET request incoming to endpoint /api/v1/admin/analytics/advanced-statistics?period=1y
+INFO::Nov-22-25 10:47:47: GET request incoming to endpoint /api/v1/admin/analytics/predictive
+INFO::Nov-22-25 10:47:47: GET request incoming to endpoint /api/v1/admin/stats
+INFO::Nov-22-25 10:47:47: GET request incoming to endpoint /api/v1/admin/users?page=1&limit=10
+INFO::Nov-22-25 10:47:47: GET request incoming to endpoint /api/v1/learning-materials
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/suggestions
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/analytics/learning-materials?period=1y
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/analytics/community-engagement?period=1y
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/analytics/user-growth?period=1y
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/analytics/conversations?period=1y
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/learning-materials
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/users?page=1&limit=10
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/stats
+INFO::Nov-22-25 10:47:48: GET request incoming to endpoint /api/v1/admin/suggestions
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/predictive
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/community-engagement?period=1y
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/user-growth?period=1y
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/conversations?period=1y
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/learning-materials?period=1y
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/advanced-statistics?period=1y
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/user-growth?period=1y
+INFO::Nov-22-25 10:47:49: GET request incoming to endpoint /api/v1/admin/analytics/conversations?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/community-engagement?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/learning-materials?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/user-growth?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/conversations?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/dashboard
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/learning-materials?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/user-growth?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/community-engagement?period=1y
+INFO::Nov-22-25 10:47:50: GET request incoming to endpoint /api/v1/admin/analytics/conversations?period=1y
+INFO::Nov-22-25 10:47:51: GET request incoming to endpoint /api/v1/admin/analytics/learning-materials?period=1y
+INFO::Nov-22-25 10:47:51: GET request incoming to endpoint /api/v1/admin/analytics/advanced-statistics?period=1y
+INFO::Nov-22-25 10:47:51: GET request incoming to endpoint /api/v1/admin/analytics/community-engagement?period=1y
+INFO::Nov-22-25 10:47:53: GET request incoming to endpoint /api/v1/admin/analytics/advanced-statistics?period=1y
+INFO::Nov-22-25 10:47:54: GET request incoming to endpoint /api/v1/admin/analytics/advanced-statistics?period=1y
+INFO::Nov-22-25 10:47:56: GET request incoming to endpoint /api/v1/admin/analytics/advanced-statistics?period=1y

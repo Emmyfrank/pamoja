@@ -94,31 +94,48 @@ export const useMessageStore = create<MessageState>((set, get) => ({
       set({ isLoading: true, error: null });
 
       const { isAuthenticated, user } = useAuthStore.getState();
+      const { sessionId } = get();
 
+      // Set up authorization if authenticated
       if (isAuthenticated && user) {
         api.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${localStorage.getItem("token")}`;
-        const response = await api.get(`/api/v1/chat`);
+      }
 
-        if (response.data.success && response.data.data.messages[0]?.messages) {
+      // Build query URL with sessionId if available
+      let url = `/api/v1/chat`;
+      if (sessionId) {
+        url += `?sessionId=${sessionId}`;
+      }
+
+      const response = await api.get(url);
+
+      if (response.data.success && response.data.data.messages) {
+        // Find the most recent conversation with messages
+        const conversations = response.data.data.messages;
+        const latestConversation = conversations
+          .filter((conv: any) => conv.messages && conv.messages.length > 0)
+          .sort((a: any, b: any) => 
+            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+          )[0];
+
+        if (latestConversation && latestConversation.messages) {
           // Convert the messages to the format expected by the UI
-          const formattedMessages =
-            response.data.data.messages[0]?.messages.map(
-              (msg: any, index: number) => ({
-                id: `history-${index}`,
-                content: msg.content,
-                isUser: msg.role === "user",
-                timestamp: new Date(msg.timestamp || Date.now()),
-              })
-            );
+          const formattedMessages = latestConversation.messages.map(
+            (msg: any, index: number) => ({
+              id: `history-${index}`,
+              content: msg.content,
+              isUser: msg.role === "user",
+              timestamp: new Date(msg.timestamp || Date.now()),
+            })
+          );
 
           set({ messages: formattedMessages, isLoading: false });
         } else {
           set({ isLoading: false });
         }
       } else {
-        // For anonymous users, we don't have a way to fetch history yet
         set({ isLoading: false });
       }
     } catch (error) {

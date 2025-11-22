@@ -38,28 +38,44 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
-      user: null,
-      token: null,
-      sessionId: null,
-      loading: false,
-      error: null,
-      isAuthenticated: false,
-      isAnonymous: false,
-      isCheckingAuth: true,
+    (set, get) => {
+      // Check if token exists in localStorage for faster initial load
+      const hasToken = typeof window !== 'undefined' && localStorage.getItem("token");
+      
+      return {
+        user: null,
+        token: null,
+        sessionId: null,
+        loading: false,
+        error: null,
+        isAuthenticated: false,
+        isAnonymous: false,
+        // Only set checking to true if we have a token to verify
+        isCheckingAuth: hasToken ? true : false,
 
       checkAuth: async () => {
+        // Don't block - set checking to false quickly, then check in background
+        const token = localStorage.getItem("token");
+        if (!token) {
+          set({ isCheckingAuth: false, loading: false });
+          useRandomName();
+          return;
+        }
+
+        // Set auth header immediately
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        
+        // Check auth in background (non-blocking)
         set({ loading: true, error: null });
         try {
-          api.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${localStorage.getItem("token")}`;
           const res = await api.get("/api/v1/auth/me");
           const { user } = res.data.data;
           set({ user, isAuthenticated: true });
         } catch (err: any) {
+          // Not authenticated - clear token and continue
+          localStorage.removeItem("token");
+          delete api.defaults.headers.common["Authorization"];
           useRandomName();
-          return null;
         } finally {
           set({ isCheckingAuth: false, loading: false });
         }
@@ -100,7 +116,10 @@ export const useAuthStore = create<AuthState>()(
           api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
           set({
-            user,
+            user: {
+              ...user,
+              role: user.role || "USER", // Ensure role is set
+            },
             token,
             isAuthenticated: true,
             isAnonymous: user.isAnonymous,
@@ -163,7 +182,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearError: () => set({ error: null }),
-    }),
+      };
+    },
     {
       name: "auth-storage",
       partialize: (state) => ({

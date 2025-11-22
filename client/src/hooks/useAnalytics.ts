@@ -7,13 +7,15 @@ interface UseAnalyticsOptions {
 }
 
 export const useAnalytics = (options: UseAnalyticsOptions = {}) => {
-  const { period = "30d", autoFetch = true } = options;
+  const { period = "1y", autoFetch = true } = options;
   const [data, setData] = useState({
     dashboardAnalytics: null,
     userGrowthData: null,
     communityEngagementData: null,
     conversationAnalyticsData: null,
     learningMaterialsData: null,
+    advancedStatistics: null,
+    predictiveAnalytics: null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +87,34 @@ export const useAnalytics = (options: UseAnalyticsOptions = {}) => {
     }
   };
 
+  const fetchAdvancedStatistics = async (period: string) => {
+    try {
+      const response = await api.get(
+        `/api/v1/admin/analytics/advanced-statistics?period=${period}`
+      );
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message ||
+          "Failed to fetch advanced statistics"
+      );
+    }
+  };
+
+  const fetchPredictiveAnalytics = async () => {
+    try {
+      const response = await api.get(
+        `/api/v1/admin/analytics/predictive`
+      );
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message ||
+          "Failed to fetch predictive analytics"
+      );
+    }
+  };
+
   const fetchAllData = async (currentPeriod: string) => {
     if (loading) return;
 
@@ -98,12 +128,16 @@ export const useAnalytics = (options: UseAnalyticsOptions = {}) => {
         communityEngagementData,
         conversationAnalyticsData,
         learningMaterialsData,
+        advancedStatistics,
+        predictiveAnalytics,
       ] = await Promise.all([
         fetchDashboardAnalytics(),
         fetchUserGrowthAnalytics(currentPeriod),
         fetchCommunityEngagementAnalytics(currentPeriod),
         fetchConversationAnalytics(currentPeriod),
         fetchLearningMaterialsAnalytics(currentPeriod),
+        fetchAdvancedStatistics(currentPeriod),
+        fetchPredictiveAnalytics(),
       ]);
 
       setData({
@@ -112,6 +146,8 @@ export const useAnalytics = (options: UseAnalyticsOptions = {}) => {
         communityEngagementData,
         conversationAnalyticsData,
         learningMaterialsData,
+        advancedStatistics,
+        predictiveAnalytics,
       });
     } catch (error: any) {
       setError(error.message);
@@ -132,11 +168,13 @@ export const useAnalytics = (options: UseAnalyticsOptions = {}) => {
         communityEngagementData,
         conversationAnalyticsData,
         learningMaterialsData,
+        advancedStatistics,
       ] = await Promise.all([
         fetchUserGrowthAnalytics(currentPeriod),
         fetchCommunityEngagementAnalytics(currentPeriod),
         fetchConversationAnalytics(currentPeriod),
         fetchLearningMaterialsAnalytics(currentPeriod),
+        fetchAdvancedStatistics(currentPeriod),
       ]);
 
       setData((prev) => ({
@@ -145,6 +183,7 @@ export const useAnalytics = (options: UseAnalyticsOptions = {}) => {
         communityEngagementData,
         conversationAnalyticsData,
         learningMaterialsData,
+        advancedStatistics,
       }));
     } catch (error: any) {
       setError(error.message);

@@ -3,6 +3,61 @@ import { configureOpenAI } from "../utils/openai.js";
 import { encrypt, decrypt } from "../utils/encryption.js";
 import Conversation from "../models/Conversation.js";
 
+/**
+ * @swagger
+ * /chat:
+ *   post:
+ *     summary: Send a message to the chatbot
+ *     tags: [Chat]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Send a question to the AI chatbot. Maintains conversation context using userId or sessionId.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - question
+ *             properties:
+ *               question:
+ *                 type: string
+ *                 description: User's question or message
+ *                 example: "What are the symptoms of pregnancy?"
+ *               sessionId:
+ *                 type: string
+ *                 description: Session ID for anonymous users (optional for authenticated users)
+ *                 example: "123e4567-e89b-12d3-a456-426614174000"
+ *               isWhatsApp:
+ *                 type: boolean
+ *                 description: Whether the request is from WhatsApp
+ *                 default: false
+ *     responses:
+ *       200:
+ *         description: Chat response received successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     results:
+ *                       type: string
+ *                       description: AI assistant's response
+ *                       example: "Pregnancy symptoms can include missed period, nausea, fatigue..."
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       500:
+ *         description: Internal server error
+ */
 export const askChatGpt = catchAsync(async (req, res, next) => {
   const { question, isWhatsApp } = req.body;
   const openai = configureOpenAI();
@@ -12,11 +67,14 @@ export const askChatGpt = catchAsync(async (req, res, next) => {
 
   try {
     let conversation;
+    // Check for conversation by userId first (for authenticated users)
     if (userId) {
       conversation = await Conversation.findOne({ userId })
         .sort({ createdAt: -1 })
         .limit(1);
-    } else if (sessionId) {
+    }
+    // If no conversation found by userId, try sessionId (for continuity)
+    if (!conversation && sessionId) {
       conversation = await Conversation.findOne({ sessionId })
         .sort({ createdAt: -1 })
         .limit(1);
@@ -40,7 +98,11 @@ export const askChatGpt = catchAsync(async (req, res, next) => {
           conversation.authTag
         );
         const historyMessages = JSON.parse(decryptedHistory);
-        messages = [...messages, ...historyMessages];
+        // Filter out system messages from history (keep only user and assistant messages)
+        const conversationMessages = historyMessages.filter(
+          (msg) => msg.role !== "system"
+        );
+        messages = [...messages, ...conversationMessages];
       } catch (error) {
         logger.error(
           "Error decrypting conversation history, starting a new conversation..."
@@ -86,6 +148,15 @@ export const askChatGpt = catchAsync(async (req, res, next) => {
       conversation.encryptedHistory = encryptedData;
       conversation.iv = iv;
       conversation.authTag = authTag;
+      // Update userId if user authenticated during the conversation
+      if (userId && !conversation.userId) {
+        conversation.userId = userId;
+        conversation.isAnonymous = false;
+      }
+      // Update sessionId if it's a new session
+      if (sessionId && !conversation.sessionId) {
+        conversation.sessionId = sessionId;
+      }
       conversation.messages.push(
         { role: "user", content: question },
         { role: "assistant", content: assistantResponse }
@@ -125,6 +196,32 @@ export const askChatGpt = catchAsync(async (req, res, next) => {
   }
 });
 
+/**
+ * @swagger
+ * /chat:
+ *   delete:
+ *     summary: Clear conversation history
+ *     tags: [Chat]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Delete all conversation history for the authenticated user
+ *     responses:
+ *       200:
+ *         description: Conversation history cleared successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Conversation history cleared successfully"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
 // Endpoint to clear conversation history
 export const clearHistory = catchAsync(async (req, res, next) => {
   await Conversation.deleteMany({ userId: req.user._id });
@@ -134,9 +231,78 @@ export const clearHistory = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @swagger
+ * /chat:
+ *   get:
+ *     summary: Get conversation history
+ *     tags: [Chat]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Retrieve conversation history for the user (authenticated or anonymous via sessionId)
+ *     parameters:
+ *       - in: query
+ *         name: sessionId
+ *         schema:
+ *           type: string
+ *         description: Session ID for anonymous users (optional)
+ *         example: "123e4567-e89b-12d3-a456-426614174000"
+ *     responses:
+ *       200:
+ *         description: Conversation history retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     messages:
+ *                       type: array
+ *                       description: Array of conversations with message history
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           messages:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 role:
+ *                                   type: string
+ *                                   enum: [user, assistant, system]
+ *                                 content:
+ *                                   type: string
+ *                                 timestamp:
+ *                                   type: string
+ *                                   format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
 export const getChatHistory = catchAsync(async (req, res, next) => {
-  const messages = await Conversation.find({ userId: req.user._id }).select(
-    "messages"
-  );
-  res.status(200).json({ success: true, data: { messages } });
+  const userId = req.user ? req.user._id : null;
+  const sessionId = req.query.sessionId || null;
+  
+  let conversations;
+  if (userId) {
+    // For authenticated users, get conversations by userId or sessionId
+    conversations = await Conversation.find({
+      $or: [{ userId }, { sessionId }],
+    }).select("messages").sort({ createdAt: -1 });
+  } else if (sessionId) {
+    // For anonymous users, get conversations by sessionId
+    conversations = await Conversation.find({ sessionId })
+      .select("messages")
+      .sort({ createdAt: -1 });
+  } else {
+    return res.status(200).json({ success: true, data: { messages: [] } });
+  }
+
+  res.status(200).json({ success: true, data: { messages: conversations } });
 });

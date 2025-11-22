@@ -50,4 +50,5 @@ app.use(errorResponse);
 app.listen(PORT, () => {
   connectDatabase();
   logger.info(`Server running on PORT ${PORT}`);
+  logger.info(`API Documentation available at http://localhost:${PORT}/api-docs`);
 });
